@@ -1,1 +1,1 @@
-# Customer-Management-sysytem-CMS-
+# CMS-Customer Management system
