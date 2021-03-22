@@ -1,0 +1,133 @@
+"Presentation Layer of CMS using Tkinter"
+from tkinter import *
+from tkinter import messagebox
+from CMSusingOOPS_Exception import *
+def btnAdd_Click():
+    cus=Customer()
+    cus.id=varId.get()
+    cus.age=varAge.get()
+    flag=1
+    if(int(cus.age)>=10 and int(cus.age)<=110):
+        pass
+    else:
+        flag=0
+        messagebox.showinfo("CMS","Incorrect Cust Age")
+    cus.mob = varMob.get()
+    if(cus.mob.isdigit() and len(cus.mob)==10):
+        pass
+    else:
+        flag=0
+        messagebox.showinfo("CMS","Incorrect Mobile No")
+    if(flag==1):
+        cus.name=varName.get()
+        cus.addCustomer()
+        messagebox.showinfo("CMS","Cust Added Successfully")
+        varId.set("")
+        varAge.set("")
+        varName.set("")
+        varMob.set("")
+
+def btnSearch_Click():
+
+    cus=Customer()
+    cus.id=varId.get()
+    cus.searchCustomer()
+    varAge.set(cus.age)
+    varName.set(cus.name)
+    varMob.set(cus.mob)
+
+def btnDelete_Click():
+    flag=messagebox.askyesno("CMS", "R You Sure, you want to Delete?")
+    if(flag==1):
+        cus=Customer()
+        cus.id=varId.get()
+        cus.deleteCustomer()
+        messagebox.showinfo("CMS","Customer Deleted Successfully")
+    else:
+        pass
+    varId.set("")
+def btnModify_Click():
+    flag = messagebox.askyesno("CMS", "R You Sure, you want to Modify?")
+    if (flag == 1):
+        cus = Customer()
+        cus.id = varId.get()
+        cus.age = varAge.get()
+        cus.name = varName.get()
+        cus.mob = varMob.get()
+        cus.modifyCustomer()
+        messagebox.showinfo("CMS", "Customer Modified Successfully")
+    else:
+        pass
+    varId.set("")
+    varAge.set("")
+    varName.set("")
+    varMob.set("")
+def btnAll_Click():
+    root1=Tk()
+    lblId1=Label(root1,text="CUST ID",font=1,width=15,bg="orange")
+    lblId1.grid(row=0,column=0)
+    lblAge1 = Label(root1, text="CUST Age", font=1, width=15, bg="orange")
+    lblAge1.grid(row=0, column=1)
+    lblName1 = Label(root1, text="CUST Name", font=1, width=15, bg="orange")
+    lblName1.grid(row=0, column=2)
+    lblMob1 = Label(root1, text="CUST Mob", font=1, width=15, bg="orange")
+    lblMob1.grid(row=0, column=3)
+    i=1
+    Customer.cur.execute("select * from customer")
+    data=Customer.cur.fetchall()
+
+    for e in data:
+        lblId2 = Label(root1, text=f"{e[0]}", font=1, width=15, bg="yellow")
+        lblId2.grid(row=i, column=0)
+        lblAge2 = Label(root1, text=f"{e[3]}", font=1, width=15, bg="yellow")
+        lblAge2.grid(row=i, column=1)
+        lblName2 = Label(root1, text=f"{e[1]}", font=1, width=15, bg="yellow")
+        lblName2.grid(row=i, column=2)
+        lblMob2 = Label(root1, text=f"{int(e[2])}", font=1, width=15, bg="yellow")
+        lblMob2.grid(row=i, column=3)
+        i+=1
+
+root=Tk()
+root.geometry("700x600")
+
+lblId=Label(root,text="Cust Id:",font=1)
+lblId.grid(row=0,column=0)
+varId=StringVar()
+entryId=Entry(root,textvariable=varId,font=1)
+entryId.grid(row=0,column=1)
+
+lblAge=Label(root,text="Cust Age:",font=1)
+lblAge.grid(row=1,column=0)
+varAge=StringVar()
+entryAge=Entry(root,textvariable=varAge,font=1)
+entryAge.grid(row=1,column=1)
+
+lblName=Label(root,text="Cust Name:",font=1)
+lblName.grid(row=2,column=0)
+varName=StringVar()
+entryName=Entry(root,textvariable=varName,font=1)
+entryName.grid(row=2,column=1)
+
+lblMob=Label(root,text="Cust Mob:",font=1)
+lblMob.grid(row=3,column=0)
+varMob=StringVar()
+entryMob=Entry(root,textvariable=varMob,font=1)
+entryMob.grid(row=3,column=1)
+
+btnAdd=Button(root,text="Add Cust",font=1,command=btnAdd_Click,width=12)
+btnAdd.grid(row=4,column=0)
+
+btnSearch=Button(root,text="Search Cust",font=1,command=btnSearch_Click,width=12)
+btnSearch.grid(row=4,column=1)
+
+btnDelete=Button(root,text="Delete Cust",font=1,command=btnDelete_Click,width=12)
+btnDelete.grid(row=4,column=2)
+
+btnModify=Button(root,text="Modify Cust",font=1,command=btnModify_Click,width=12)
+btnModify.grid(row=5,column=0)
+
+btnAll=Button(root,text="Display All",font=1,command=btnAll_Click,width=12)
+btnAll.grid(row=5,column=1)
+
+
+root.mainloop()

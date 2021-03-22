@@ -1,0 +1,182 @@
+#BLL
+import pymysql
+import pickle
+import json
+class Customer:
+    con=pymysql.connect(host="localhost",user="root",password="root1234",database="db1")
+    cur=con.cursor()
+    cuslist=[]
+    def __init__(self):
+        self.id=None
+        self.age=None
+        self.name=None
+        self.mob=None
+    def addCustomer(self):
+        qry=f"insert into customer values({self.id},'{self.name}',{self.mob},{self.age})"
+        Customer.cur.execute(qry)
+        Customer.con.commit()
+        # for e in Customer.cuslist:
+        #     if(e.id==self.id):
+        #         raise ValueError("Duplicate Id")
+        # Customer.cuslist.append(self)
+    def searchCustomer(self):
+        qry=f"select * from customer where id={self.id}"
+        Customer.cur.execute(qry)
+        data=Customer.cur.fetchone()
+        # print(data)
+        self.name=data[1]
+        self.mob=data[2]
+        self.age=data[3]
+
+
+        # for e in Customer.cuslist:
+        #     if(e.id==self.id):
+        #         self.age=e.age
+        #         self.name=e.name
+        #         self.mob=e.mob
+        #         return
+        # else:
+        #     raise ValueError("Id not Found")
+    def deleteCustomer(self):
+        qry=f"delete from customer where id={self.id}"
+        Customer.cur.execute(qry)
+        Customer.con.commit()
+        # for e in Customer.cuslist:
+        #     if(e.id==self.id):
+        #         Customer.cuslist.remove(e)
+        #         return
+        # else:
+        #     raise ValueError("Id not Found")
+    @staticmethod
+    def staticDeleteCustomer(id):
+        for e in Customer.cuslist:
+            if(e.id==id):
+                Customer.cuslist.remove(e)
+                return
+        else:
+            raise ValueError("Id not Found")
+    def modifyCustomer(self):
+        qry=f"update customer set name = '{self.name}', age = {self.age}, mob={self.mob} where id = {self.id}"
+        # print(Customer.cur.mogrify(qry))
+        Customer.cur.execute(qry)
+        Customer.con.commit()
+
+
+        # for e in Customer.cuslist:
+        #     if(e.id==self.id):
+        #         e.age=self.age
+        #         e.name=self.name
+        #         e.mob=self.mob
+        #         return
+        # else:
+        #     raise ValueError("Id not Found")
+    @staticmethod
+    def savetoPickle():
+        f=open("D:/cetpa/cmspickle.txt","wb")
+        pickle.dump(Customer.cuslist,f)
+        f.close()
+    @staticmethod
+    def loadfromPickle():
+        f=open("D:/cetpa/cmspickle.txt","rb")
+        Customer.cuslist=pickle.load(f)
+        f.close()
+    @staticmethod
+    def convtoDict(obj):
+        return obj.__dict__
+
+    @staticmethod
+    def savetoJson():
+        f=open("D:/cetpa/cmsjson.txt","w")
+        json.dump(Customer.cuslist,f,default=Customer.convtoDict)
+        f.close()
+
+    @staticmethod
+    def convtoObj(d):
+        ob=Customer()
+        # for k in d:  #{"id": 10, "age": "39", "name": "Vikas", "mob": "5643"}
+        #     ob.__setattr__(k,d[k]) #argument variable,value
+        for k,v in d.items():
+            ob.__setattr__(k,v)
+        return ob
+
+    # @staticmethod
+    # def convtoObj(d):
+    #     obj=Customer()
+    #     obj.id=d["id"]
+    #     obj.age=d["age"]
+    #     obj.name=d["name"]
+    #     obj.mob=d["mob"]
+    #     return obj
+    @staticmethod
+    def loadfromJson():
+        f = open("D:/cetpa/cmsjson.txt", "r")
+        Customer.cuslist=json.load(f,object_hook=Customer.convtoObj)
+        # print(Customer.cuslist)
+        f.close()
+#PL
+if(__name__=="__main__"):
+    def showCustomer(cus):
+        print(f"Cust ID: {cus.id},Cust Age: {cus.age},Cust Name: {cus.name},Cust Mob: {cus.mob}")
+    while(1):
+        try:
+            print("1 for Add Customer, 2 for Search Customer")
+            print("3 for Delete Customer, 4 for Modify Cust")
+            print("5 for Display All Customers, 0 for Exit")
+            print("6 to write Data to Pickle,7 to retrieve data from pickle")
+            print("8 to write Data to Json,9 to retrieve data from Json")
+            ch=input("Enter Choice 1 to 9: ")
+            if(ch=="1"): #Add Cust
+                cus=Customer()
+                cus.id=int(input("Enter Cust Id:"))
+                cus.age = input("Enter Cust Age:")
+                cus.name = input("Enter Cust Name:")
+                cus.mob = input("Enter Cust Mob:")
+                cus.addCustomer()
+                print("Customer Added Successfully")
+            elif(ch=="2"): #Search Cust
+                cus=Customer()
+                cus.id=int(input("Enter Cust Id:"))
+                cus.searchCustomer()
+                showCustomer(cus)
+            elif(ch=="3"): #Delete Cust
+                cus=Customer()
+                cus.id=int(input("Enter Cust Id:"))
+                cus.deleteCustomer()
+                # id = input("Enter Cust Id:") #If to call static method
+                # Customer.staticDeleteCustomer(id)
+            elif (ch == "4"):  # Modify Cust
+                cus = Customer()
+                cus.id = int(input("Enter Cust Id:"))
+                cus.age = input("Enter Cust Updated Age:")
+                cus.name = input("Enter Cust Updated Name:")
+                cus.mob = input("Enter Cust Updated Mob:")
+                cus.modifyCustomer()
+                print("Customer Modified Successfully")
+            elif (ch == "5"):  # Display All Cust
+                Customer.cur.execute("select * from customer")
+                desc = Customer.cur.description
+                for e in desc:
+                    print(e[0], end="\t\t")
+                print()
+
+                data = Customer.cur.fetchall()
+                for e in data:
+                    print(e[0], "\t\t", e[1], "\t\t", e[2], "\t\t", e[3])
+
+                # for e in Customer.cuslist:
+                #     showCustomer(e)
+            elif (ch == "0"):  # Exit
+                break
+            elif(ch=="6"): #To write to Pickle
+                Customer.savetoPickle()
+                print("Data Saved in Pickle Format Successfully")
+            elif(ch=="7"): #To load data from Pickle
+                Customer.loadfromPickle()
+            elif(ch=="8"): #To save data to Json
+                Customer.savetoJson()
+            elif (ch == "9"):  # To retrieve data from Json
+                Customer.loadfromJson()
+            else:
+                print("Incorrect Choice")
+        except Exception as err:
+            print("Following Error:",err)
